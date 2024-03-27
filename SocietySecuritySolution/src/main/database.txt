@@ -1,0 +1,86 @@
+CREATE DATABASE IF NOT EXISTS SocietySecuritySolution;
+
+USE SocietySecuritySolution;
+
+CREATE TABLE IF NOT EXISTS Building(
+    BuildingID INT NOT NULL AUTO_INCREMENT,
+    BuildingName VARCHAR(100) NOT NULL,
+    Location VARCHAR(1000) NOT NULL,
+    SupervisorEmail VARCHAR(320) NOT NULL,
+    SupervisorPassword VARCHAR(32) NOT NULL,
+    PRIMARY KEY (BuildingID),
+    UNIQUE (SupervisorEmail)
+);
+
+CREATE TABLE IF NOT EXISTS Flat(
+    Flat_No INT NOT NULL,
+    BuildingID INT NOT NULL,
+    Floor_No INT NOT NULL,
+    Flat_Type VARCHAR(10) NOT NULL,
+    PRIMARY KEY (Flat_No, BuildingID),
+    FOREIGN KEY (BuildingID) REFERENCES Building (BuildingID)
+);
+
+CREATE TABLE IF NOT EXISTS Resident(
+    ResidentID INT NOT NULL AUTO_INCREMENT,
+    RName VARCHAR(200) NOT NULL,
+    Flat_No INT NOT NULL,
+    BuildingID INT NOT NULL,
+    RMobile CHAR(10) NOT NULL,
+    ResidentEmail VARCHAR(320) NOT NULL,
+    ResidentPassword VARCHAR(32) NOT NULL,
+    PRIMARY KEY (ResidentID),
+    UNIQUE (Flat_No, BuildingID),
+    UNIQUE (RMobile),
+    UNIQUE (ResidentEmail),
+    FOREIGN KEY (Flat_No, BuildingID) REFERENCES Flat (Flat_No, BuildingID)
+);
+
+CREATE TABLE IF NOT EXISTS NormalVisitor(
+    Mobile CHAR(10) NOT NULL,
+    ApprovalStatus VARCHAR(10) NOT NULL DEFAULT "Pending",
+    Name VARCHAR(200) NOT NULL,
+    Flat_No INT NOT NULL,
+    BuildingID INT NOT NULL,
+    Date DATE NOT NULL,
+    PRIMARY KEY (Mobile, ApprovalStatus, Date),
+    FOREIGN KEY (Flat_No, BuildingID) REFERENCES Flat (Flat_No, BuildingID)
+);
+
+CREATE TABLE IF NOT EXISTS RegularVisitor(
+    SecurityCode CHAR(7) NOT NULL,
+    Name VARCHAR(200) NOT NULL,
+    Mobile CHAR(10) NOT NULL,
+    PRIMARY KEY (SecurityCode),
+    UNIQUE (Mobile)
+);
+
+CREATE TABLE IF NOT EXISTS RegularVisitor_Record(
+    SecurityCode CHAR(7) NOT NULL,
+    Flat_No INT NOT NULL,
+    BuildingID INT NOT NULL,
+    Date DATE NOT NULL,
+    CheckIn TIME NOT NULL,
+    CheckOut TIME,
+    FOREIGN KEY (SecurityCode) REFERENCES RegularVisitor (SecurityCode),
+    FOREIGN KEY (Flat_No, BuildingID) REFERENCES Flat (Flat_No, BuildingID)
+);
+
+CREATE TABLE IF NOT EXISTS Maintenance(
+    Flat_No INT NOT NULL,
+    BuildingID INT NOT NULL,
+    Date DATE NOT NULL,
+    Amount INT NOT NULL DEFAULT "3000",
+    Status VARCHAR(10) NOT NULL DEFAULT "Due",
+    ModeOfPayment VARCHAR(20),
+    FOREIGN KEY (Flat_No, BuildingID) REFERENCES Flat (Flat_No, BuildingID)
+);
+
+CREATE TABLE IF NOT EXISTS Staff(
+    Role VARCHAR(100) NOT NULL,
+    Name VARCHAR(100) NOT NULL,
+    WorkingHours CHAR(11) NOT NULL,
+    EmergencyContact CHAR(10) NOT NULL,
+    BuildingID INT NOT NULL,
+    FOREIGN KEY (BuildingID) REFERENCES Building (BuildingID)
+);
